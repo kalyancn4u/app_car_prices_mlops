@@ -310,4 +310,96 @@ build("07_productionisation.ipynb", [
            "evaluation → shippable pipeline — is now reproducible end to end."),
 ])
 
+# ---------------------------------------------------------------------------
+# 08 — XGBoost deep dive (servability & head-to-head) — the "pending" thread
+# ---------------------------------------------------------------------------
+build("08_xgboost_deep_dive.ipynb", [
+    ("md", "# 08 · XGBoost Deep Dive — servability & the head-to-head\n\n"
+           "**Phase goal:** close the loop on the model bake-off (nb 05). XGBoost had "
+           "the *best* cross-validated MAE, yet the pipeline shipped **LightGBM**. This "
+           "notebook answers the two questions that leaves open:\n\n"
+           "1. *Why* couldn't XGBoost be shipped through a scikit-learn `Pipeline`?\n"
+           "2. If we serve it another way, **is XGBoost actually better** than the "
+           "LightGBM we shipped — i.e., did the selection cost us any accuracy?\n\n"
+           "Full write-up: [`docs/XGBOOST_SERVABILITY.md`](../docs/XGBOOST_SERVABILITY.md)."),
+    ("code", BOOT + "\nimport numpy as np, pandas as pd\n"
+             "from sklearn.model_selection import train_test_split\n"
+             "from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error\n"
+             "from xgboost import XGBRegressor\n"
+             "from car_pricing import config, data, features, models\n"
+             "from car_pricing.pipeline import make_pipeline\n"
+             "df = data.clean(data.load_raw()); X, y = features.split_xy(df)\n"
+             "Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=config.TEST_SIZE, random_state=config.RANDOM_STATE)\n"
+             "edges = features.band_edges(ytr)\n"
+             "print('train/test:', len(Xtr), '/', len(Xte))"),
+    ("md", "## 1 · Reproduce the failure\n"
+           "XGBoost fits inside a `Pipeline` fine — the break is at **`.predict()`**, "
+           "when scikit-learn 1.6 inspects the estimator's tags."),
+    ("code", "pipe = make_pipeline(models.model_zoo()['XGBoost'])\n"
+             "pipe.fit(Xtr, ytr)          # fitting is fine\n"
+             "try:\n"
+             "    pipe.predict(Xte[:3])\n"
+             "    print('predict OK (env already patched)')\n"
+             "except Exception as e:\n"
+             "    print('predict FAILS ->', type(e).__name__ + ':', str(e)[:70])"),
+    ("md", "## 2 · Root cause — a broken cooperative-inheritance chain\n"
+           "scikit-learn 1.6 builds estimator tags by walking the MRO and calling "
+           "`super().__sklearn_tags__()` cooperatively. That requires the **mixin first, "
+           "`BaseEstimator` last**. XGBoost 2.1.1 declares the bases the other way round, "
+           "so `RegressorMixin`'s `super()` lands on `object` — which has no "
+           "`__sklearn_tags__` → `AttributeError`."),
+    ("code", "mro = [c.__name__ for c in XGBRegressor.__mro__]\n"
+             "print('XGBRegressor MRO:', ' -> '.join(mro))\n"
+             "print('BaseEstimator before RegressorMixin?',\n"
+             "      mro.index('BaseEstimator') < mro.index('RegressorMixin'),\n"
+             "      '(that ordering is the bug)')\n"
+             "import xgboost, sklearn\n"
+             "print('xgboost', xgboost.__version__, '| scikit-learn', sklearn.__version__)"),
+    ("md", "### Fix options\n"
+           "| Option | What | Verdict |\n"
+           "| :-- | :-- | :-- |\n"
+           "| **Upgrade** | `pip install 'xgboost>=2.1.2'` (or pin `scikit-learn<1.6`) | ✅ Cleanest — XGBoost then drops straight into the Pipeline |\n"
+           "| **Decoupled serving** | Fit the `ColumnTransformer` + `XGBRegressor` separately; `xgb.predict(pre.transform(X))` | ✅ Works on any versions (used below to evaluate) |\n"
+           "| Monkey-patch tags | Inject a `__sklearn_tags__` at runtime | ⚠️ Fragile / version-specific — not recommended |"),
+    ("md", "## 3 · Serve XGBoost decoupled and evaluate on the held-out test set"),
+    ("code", "pre = features.build_preprocessor()\n"
+             "Xtr_e = pre.fit_transform(Xtr, ytr); Xte_e = pre.transform(Xte)\n"
+             "xgb = XGBRegressor(**models.model_zoo()['XGBoost'].get_params())\n"
+             "xgb.fit(Xtr_e, ytr); pred = xgb.predict(Xte_e)\n"
+             "def score(yt, p):\n"
+             "    tb = features.price_to_band(yt, edges); pb = features.price_to_band(p, edges)\n"
+             "    return {'R2': round(r2_score(yt,p),4), 'MAE': round(mean_absolute_error(yt,p),3),\n"
+             "            'RMSE': round(float(np.sqrt(mean_squared_error(yt,p))),3),\n"
+             "            'band_acc': round(float((tb==pb).mean()),4)}\n"
+             "print('XGBoost (decoupled) TEST:', score(yte, pred))"),
+    ("md", "## 4 · Head-to-head: XGBoost vs the shipped LightGBM"),
+    ("code", "import json\n"
+             "comp = json.loads(config.COMPARISON_PATH.read_text())\n"
+             "m = json.loads(config.METRICS_PATH.read_text())\n"
+             "xgb_test = score(yte, pred)\n"
+             "tbl = pd.DataFrame({\n"
+             "  'XGBoost':  {'CV MAE': round(comp['XGBoost']['cv_mae'],3),\n"
+             "               'Test MAE': xgb_test['MAE'], 'Test R2': xgb_test['R2'],\n"
+             "               'Test RMSE': xgb_test['RMSE'], 'Band acc': xgb_test['band_acc'],\n"
+             "               'Servable in Pipeline': 'no (this env)'},\n"
+             "  'LightGBM (shipped)': {'CV MAE': round(comp['LightGBM']['cv_mae'],3),\n"
+             "               'Test MAE': m['price_mae_lakhs'], 'Test R2': m['price_r2'],\n"
+             "               'Test RMSE': m['price_rmse_lakhs'], 'Band acc': m['band_accuracy'],\n"
+             "               'Servable in Pipeline': 'yes'},\n"
+             "})\n"
+             "tbl"),
+    ("md", "## Conclusion\n"
+           "- **The models are statistically indistinguishable on the held-out test "
+           "set** — identical R², MAE within ~₹400, band accuracy within 0.2 pt. Note "
+           "LightGBM is even *marginally better on test MAE* despite XGBoost's slightly "
+           "better CV MAE, confirming the gap is noise.\n"
+           "- **Shipping LightGBM therefore cost zero accuracy** while buying clean, "
+           "shim-free serialisation and serving — exactly the operational-robustness "
+           "trade-off `train.py` automates.\n"
+           "- **To ship XGBoost instead**, upgrade to `xgboost>=2.1.2`; it then drops "
+           "straight into the same `Pipeline` and the selector would pick it "
+           "automatically. Until then, decoupled serving (above) is the escape hatch.\n\n"
+           "The bake-off thread is now fully closed."),
+])
+
 print("\nAll notebooks generated.")

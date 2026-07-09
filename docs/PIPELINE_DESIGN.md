@@ -37,6 +37,12 @@ of train/serve skew. Ship one file, call `.predict()`.
 Notebooks and tests **import this package** rather than re-implementing logic, so
 there is exactly one definition of every step.
 
+> **"Servable winner" in practice:** `train.py` walks the CV ranking and ships the
+> first model that both fits **and** predicts inside a portable `Pipeline`. On this
+> environment that skips XGBoost (a `xgboost 2.1 × sklearn 1.6` tag bug) in favour
+> of LightGBM — at zero accuracy cost. Root cause, fix options and the head-to-head
+> are in [`XGBOOST_SERVABILITY.md`](XGBOOST_SERVABILITY.md).
+
 ## Why target encoding (not one-hot)
 
 `model` has 3,233 levels. One-hot → a ~3,200-column matrix that is huge, slow, and

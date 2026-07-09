@@ -32,6 +32,10 @@ def model_zoo() -> Dict[str, RegressorMixin]:
             max_iter=400, learning_rate=0.06, max_depth=8, random_state=RS),
     }
 
+    # NOTE: on xgboost 2.1.x x scikit-learn 1.6.x, XGBoost fits inside a Pipeline
+    # but cannot `.predict()` through it (a tag-system incompatibility, fixed in
+    # xgboost>=2.1.2). train.py handles this by shipping the best *servable* model;
+    # the full analysis + head-to-head is in docs/XGBOOST_SERVABILITY.md.
     try:
         from xgboost import XGBRegressor
         zoo["XGBoost"] = XGBRegressor(

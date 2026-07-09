@@ -62,6 +62,7 @@ embedded). They import the `car_pricing` package rather than duplicating logic.
 | 05 | [`05_model_comparison`](notebooks/05_model_comparison.ipynb) | Modelling | The DT/RF/XGB/LGBM bake-off, cross-validated |
 | 06 | [`06_evaluation_and_selection`](notebooks/06_evaluation_and_selection.ipynb) | Evaluation | Held-out metrics, residuals, KPI gate, ship decision |
 | 07 | [`07_productionisation`](notebooks/07_productionisation.ipynb) | Deployment | The one-Pipeline artifact + serving contract |
+| 08 | [`08_xgboost_deep_dive`](notebooks/08_xgboost_deep_dive.ipynb) | Appendix | Why XGBoost couldn't ship, and the XGBoost-vs-LightGBM head-to-head |
 
 ---
 
@@ -146,6 +147,10 @@ and discussion in [`docs/MODEL_CARD.md`](docs/MODEL_CARD.md) and
 through a portable Pipeline. Since LightGBM is a tie and serves with no version
 shim, `train.py` ships it automatically — **operational robustness over a
 0.007-Lakh difference**. That's a real MLOps trade-off, documented, not hidden.
+Evaluated head-to-head on the test set, XGBoost is **no better** (LightGBM is even
+marginally ahead on MAE) → **zero accuracy cost**. Full analysis:
+[`docs/XGBOOST_SERVABILITY.md`](docs/XGBOOST_SERVABILITY.md) ·
+[notebook 08](notebooks/08_xgboost_deep_dive.ipynb).
 
 ---
 
@@ -212,6 +217,7 @@ The siblings answer *"how do users interact with the model?"*; this repo answers
 - 💼 [`docs/BUSINESS_CASE.md`](docs/BUSINESS_CASE.md) — problem, value, KPIs, scope
 - 📖 [`docs/DATA_DICTIONARY.md`](docs/DATA_DICTIONARY.md) — every column, the baselines, cleaning
 - 🃏 [`docs/MODEL_CARD.md`](docs/MODEL_CARD.md) — the bake-off, selection, performance, limits
+- 🧩 [`docs/XGBOOST_SERVABILITY.md`](docs/XGBOOST_SERVABILITY.md) — why XGBoost didn't ship, and the head-to-head
 - 🏗️ [`docs/PIPELINE_DESIGN.md`](docs/PIPELINE_DESIGN.md) — package layout, leakage control, MLOps loop
 - 🗃️ [`docs/FORMAT_BENCHMARKS.md`](docs/FORMAT_BENCHMARKS.md) — CSV vs Parquet vs Feather, the Excel trap
 

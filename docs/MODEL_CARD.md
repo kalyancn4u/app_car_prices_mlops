@@ -47,6 +47,22 @@ robustness beats a 0.007-Lakh CV difference* — and it is automated in `train.p
 (it walks the CV ranking and ships the first model that fits **and** predicts in a
 Pipeline).
 
+**Was XGBoost actually better?** No — evaluated via decoupled serving on the same
+held-out test set, the two are indistinguishable, and LightGBM is even marginally
+better on test MAE:
+
+| Metric | XGBoost | LightGBM (shipped) |
+| :----- | ------: | -----------------: |
+| CV MAE | 0.708 | 0.715 |
+| Test MAE | 0.668 | **0.664** |
+| Test R² | 0.9568 | 0.9568 |
+| Band accuracy | 0.8605 | 0.8582 |
+
+So shipping LightGBM cost **zero accuracy**. Full root-cause analysis, fix options
+and reproduction: [`XGBOOST_SERVABILITY.md`](XGBOOST_SERVABILITY.md) /
+[notebook 08](../notebooks/08_xgboost_deep_dive.ipynb). To ship XGBoost instead,
+upgrade to `xgboost>=2.1.2` and re-run training — no code changes needed.
+
 ## Held-out test performance (shipped LightGBM)
 
 | Metric | Value | KPI gate |
