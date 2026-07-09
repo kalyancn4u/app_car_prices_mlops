@@ -222,3 +222,13 @@ The siblings answer *"how do users interact with the model?"*; this repo answers
 
 <sub>Built with scikit-learn · LightGBM · XGBoost · pandas · pyarrow. Third of the
 `*_car_prices` trio.</sub>
+
+---
+
+### 🔗 The Car Prices Trio
+
+Three sibling projects built on the same Cars24 dataset:
+
+- 🎛️ **[Streamlit web app →](https://github.com/kalyancn4u/app_streamlit_car_prices)** — interactive price-predictor UI
+- 🐳 **[Flask REST API →](https://github.com/kalyancn4u/app_flask_car_prices)** — containerised API (Docker + AWS ECS/Fargate)
+- 🔬 **MLOps lifecycle** — full SDLC: notebooks → production pipeline · _you are here_
