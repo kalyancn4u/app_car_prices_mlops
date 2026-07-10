@@ -8,10 +8,10 @@ This is one of the **Car Prices Quartet**, four projects built on the same Cars2
 
 | Repo | What it is |
 | :--- | :--------- |
-| `app_streamlit_car_prices` | An interactive Streamlit app |
-| `app_flask_car_prices` | A containerised Flask REST API (Docker + AWS ECS) |
-| **`app_mlops_car_prices`** *(this repo)* | The **full ML lifecycle**: KPIs → data → features → model bake-off → evaluation → production pipeline |
-| `app_pipeline_car_prices` | A beginner-friendly starter (guided docs + test stubs) |
+| `app_car_prices_streamlit` | An interactive Streamlit app |
+| `app_car_prices_flask` | A containerised Flask REST API (Docker + AWS ECS) |
+| **`app_car_prices_mlops`** *(this repo)* | The **full ML lifecycle**: KPIs → data → features → model bake-off → evaluation → production pipeline |
+| `app_car_prices_pipeline` | A beginner-friendly starter (guided docs + test stubs) |
 
 Where the sibling apps *serve* the model, this repo is the **process**: how you'd
 actually build the model those apps serve, done properly and reproducibly.
@@ -176,7 +176,7 @@ copy for fast, type-safe reloads.
 ## 📁 Project structure
 
 ```
-app_mlops_car_prices/
+app_car_prices_mlops/
 ├── README.md
 ├── requirements.txt · pyproject.toml · Makefile · .gitignore
 ├── data/
@@ -236,7 +236,7 @@ The siblings answer *"how do users interact with the model?"*; this repo answers
 
 Four sibling projects built on the same Cars24 dataset:
 
-- 🎛️ **[Streamlit web app →](https://github.com/kalyancn4u/app_streamlit_car_prices)** — interactive price-predictor UI
-- 🐳 **[Flask REST API →](https://github.com/kalyancn4u/app_flask_car_prices)** — containerised API (Docker + AWS ECS/Fargate)
+- 🎛️ **[Streamlit web app →](https://github.com/kalyancn4u/app_car_prices_streamlit)** — interactive price-predictor UI
+- 🐳 **[Flask REST API →](https://github.com/kalyancn4u/app_car_prices_flask)** — containerised API (Docker + AWS ECS/Fargate)
 - 🔬 **MLOps lifecycle** — full SDLC: notebooks → production pipeline · _you are here_
-- 🛠️ **[Pipeline starter →](https://github.com/kalyancn4u/app_pipeline_car_prices)** — beginner-friendly guide + test stubs to extend
+- 🛠️ **[Pipeline starter →](https://github.com/kalyancn4u/app_car_prices_pipeline)** — beginner-friendly guide + test stubs to extend
