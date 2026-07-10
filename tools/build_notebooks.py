@@ -146,9 +146,9 @@ build("03_data_format_benchmarks.ipynb", [
            "- **Feather** — fastest read, but ~3× larger than Parquet; good for "
            "short-lived local hand-offs.\n"
            "- **`CSV + bz2`** — smallest on disk but slowest to read (cold archival only).\n\n"
-           "> This project keeps `data/raw` as a plain CSV for transparency, and uses "
-           "`data.write_dataframe(...)` to cache a **Parquet** copy for fast reloads "
-           "during iterative modelling."),
+           "> This project ships `data/raw` as a **gzip-compressed CSV** (`.csv.gz`, ~81% "
+           "smaller) — pandas decompresses it transparently on read. The pipeline can still "
+           "cache a **Parquet** copy via `data.write_dataframe(...)` for fast reloads."),
 ])
 
 # ---------------------------------------------------------------------------

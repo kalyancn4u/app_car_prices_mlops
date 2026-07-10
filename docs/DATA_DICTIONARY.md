@@ -1,6 +1,7 @@
 # 📖 Data Dictionary
 
-Source: `data/raw/cars24-car-price-cleaned-new.csv` — **19,820 cleaned Cars24
+Source: `data/raw/cars24-car-price-cleaned-new.csv.gz` (gzip-compressed; pandas
+reads it directly) — **19,820 cleaned Cars24
 used-car listings**, 17 columns, covering **41 makes** and **3,233 models**.
 
 ## Columns

@@ -179,7 +179,7 @@ app_mlops_car_prices/
 ├── README.md
 ├── requirements.txt · pyproject.toml · Makefile · .gitignore
 ├── data/
-│   ├── raw/cars24-car-price-cleaned-new.csv     # the dataset (committed)
+│   ├── raw/cars24-car-price-cleaned-new.csv.gz # the dataset, gzip-compressed (committed)
 │   └── processed/                               # generated (gitignored)
 ├── notebooks/                # 01–07, executed with outputs & charts
 ├── src/car_pricing/          # the production package

@@ -10,7 +10,9 @@ from pathlib import Path
 
 # --- Paths -----------------------------------------------------------------
 ROOT = Path(__file__).resolve().parents[2]
-DATA_RAW = ROOT / "data" / "raw" / "cars24-car-price-cleaned-new.csv"
+# Stored gzip-compressed (~81% smaller); pandas.read_csv infers .gz and
+# decompresses on read, so nothing else in the pipeline needs to change.
+DATA_RAW = ROOT / "data" / "raw" / "cars24-car-price-cleaned-new.csv.gz"
 DATA_PROCESSED = ROOT / "data" / "processed"
 MODELS_DIR = ROOT / "models"
 

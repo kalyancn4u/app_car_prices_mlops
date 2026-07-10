@@ -45,10 +45,12 @@ it to an archive tool; peek with `zcat f.csv.gz | head` or `pd.read_csv("f.csv.g
 
 ## Decision for this project
 
-`data/raw/` stays a **plain CSV** for transparency and reviewability. The
-pipeline caches a **Parquet** copy via `data.write_dataframe(...)` when a fast,
-type-safe reload is wanted during iterative modelling. If the dataset ever grew
-to millions of rows, Parquet would become the primary storage format.
+`data/raw/` ships the dataset as a **gzip-compressed CSV** (`.csv.gz`, ~81%
+smaller) — the low-friction size win: `pandas.read_csv` decompresses it
+transparently, so no code changes and the file stays a plain CSV once read. The
+pipeline can still cache a **Parquet** copy via `data.write_dataframe(...)` when a
+fast, type-safe reload is wanted during iterative modelling. If the dataset ever
+grew to millions of rows, Parquet would become the primary storage format.
 
 > 🧭 **Rules of thumb:** *human sharing / tiny files* → **CSV**; *shrink a CSV in
 > a repo with zero friction* → **CSV + gzip**; *a real analytics workflow or big
