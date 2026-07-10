@@ -4,15 +4,16 @@
 > **deployable, KPI-gated pipeline** — walked phase by phase in Jupyter notebooks,
 > backed by a production Python package, and documented every step of the way.
 
-This is the third project in a trio, all built on the same Cars24 dataset:
+This is one of the **Car Prices Quartet**, four projects built on the same Cars24 dataset:
 
 | Repo | What it is |
 | :--- | :--------- |
 | `app_streamlit_car_prices` | An interactive Streamlit app |
 | `app_flask_car_prices` | A containerised Flask REST API (Docker + AWS ECS) |
 | **`app_mlops_car_prices`** *(this repo)* | The **full ML lifecycle**: KPIs → data → features → model bake-off → evaluation → production pipeline |
+| `app_pipeline_car_prices` | A beginner-friendly starter (guided docs + test stubs) |
 
-Where the two siblings are *apps*, this repo is the **process**: how you'd
+Where the sibling apps *serve* the model, this repo is the **process**: how you'd
 actually build the model those apps serve, done properly and reproducibly.
 
 ---
@@ -226,15 +227,16 @@ The siblings answer *"how do users interact with the model?"*; this repo answers
 > ⚠️ **Disclaimer:** predictions are statistical estimates from historical Cars24
 > listings — decision support, not a guaranteed sale price.
 
-<sub>Built with scikit-learn · LightGBM · XGBoost · pandas · pyarrow. Third of the
-`*_car_prices` trio.</sub>
+<sub>Built with scikit-learn · LightGBM · XGBoost · pandas · pyarrow. Part of the
+`*_car_prices` quartet.</sub>
 
 ---
 
-### 🔗 The Car Prices Trio
+### 🔗 The Car Prices Quartet
 
-Three sibling projects built on the same Cars24 dataset:
+Four sibling projects built on the same Cars24 dataset:
 
 - 🎛️ **[Streamlit web app →](https://github.com/kalyancn4u/app_streamlit_car_prices)** — interactive price-predictor UI
 - 🐳 **[Flask REST API →](https://github.com/kalyancn4u/app_flask_car_prices)** — containerised API (Docker + AWS ECS/Fargate)
 - 🔬 **MLOps lifecycle** — full SDLC: notebooks → production pipeline · _you are here_
+- 🛠️ **[Pipeline starter →](https://github.com/kalyancn4u/app_pipeline_car_prices)** — beginner-friendly guide + test stubs to extend
