@@ -28,3 +28,10 @@ Thumbs.db
 # so a fresh clone can train and serve immediately.
 data/processed/*
 !data/processed/.gitkeep
+
+# MLOps runtime state — all locally generated (regenerate by running the tools).
+# NOTE: keep each pattern on its own line; git does not allow inline comments.
+mlruns/
+experiments/
+monitoring/
+models/registry/

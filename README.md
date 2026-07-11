@@ -27,8 +27,9 @@ actually build the model those apps serve, done properly and reproducibly.
 5. [Model comparison (DT vs RF vs XGBoost vs LightGBM)](#-model-comparison-dt-vs-rf-vs-xgboost-vs-lightgbm)
 6. [Data formats: CSV vs Parquet vs Feather](#-data-formats-csv-vs-parquet-vs-feather)
 7. [Project structure](#-project-structure)
-8. [How it compares to the sibling projects](#-how-it-compares-to-the-sibling-projects)
-9. [Documentation index](#-documentation-index)
+8. [MLOps stages (implemented)](#-mlops-stages-implemented)
+9. [How it compares to the sibling projects](#-how-it-compares-to-the-sibling-projects)
+10. [Documentation index](#-documentation-index)
 
 ---
 
@@ -64,6 +65,7 @@ embedded). They import the `car_pricing` package rather than duplicating logic.
 | 06 | [`06_evaluation_and_selection`](notebooks/06_evaluation_and_selection.ipynb) | Evaluation | Held-out metrics, residuals, KPI gate, ship decision |
 | 07 | [`07_productionisation`](notebooks/07_productionisation.ipynb) | Deployment | The one-Pipeline artifact + serving contract |
 | 08 | [`08_xgboost_deep_dive`](notebooks/08_xgboost_deep_dive.ipynb) | Appendix | Why XGBoost couldn't ship, and the XGBoost-vs-LightGBM head-to-head |
+| 09 | [`09_mlops_toolkit`](notebooks/09_mlops_toolkit.ipynb) | **MLOps** | Validation, tuning, tracking, explainability, versioning, monitoring, drift — running |
 
 ---
 
@@ -179,20 +181,48 @@ copy for fast, type-safe reloads.
 app_car_prices_mlops/
 ├── README.md
 ├── requirements.txt · pyproject.toml · Makefile · .gitignore
+├── Dockerfile · .dockerignore      # serving image (car_pricing.serve)
+├── .github/workflows/              # ci.yml · cd.yml · ct.yml  (CI / CD / CT)
 ├── data/
 │   ├── raw/cars24-car-price-cleaned-new.csv.gz # the dataset, gzip-compressed (committed)
 │   └── processed/                               # generated (gitignored)
-├── notebooks/                # 01–07, executed with outputs & charts
+├── notebooks/                # 01–09, executed with outputs & charts (09 = MLOps toolkit)
 ├── src/car_pricing/          # the production package
-│   ├── config.py · data.py · features.py · models.py
-│   ├── pipeline.py · train.py · predict.py
+│   ├── config.py · data.py · features.py · models.py · pipeline.py
+│   ├── train.py · predict.py
+│   └── validation.py · tuning.py · tracking.py · explain.py     ← MLOps toolkit
+│       · registry.py · monitoring.py · drift.py · serve.py
 ├── models/                   # trained artifacts (committed, ~1 MB)
 │   ├── price_pipeline.pkl · metrics.json · model_comparison.json · serving_metadata.json
-├── docs/                     # BUSINESS_CASE · DATA_DICTIONARY · MODEL_CARD
-│   │                         # PIPELINE_DESIGN · FORMAT_BENCHMARKS
-├── tests/test_pipeline.py    # data/feature/KPI-gate/serving contracts
+│   └── registry/             # local model registry (gitignored)
+├── docs/                     # MLOPS_GUIDE · GOVERNANCE · BUSINESS_CASE · DATA_DICTIONARY
+│   │                         # MODEL_CARD · PIPELINE_DESIGN · FORMAT_BENCHMARKS · XGBOOST_SERVABILITY
+├── tests/                    # test_pipeline.py + test_mlops.py  (15 tests)
 └── tools/build_notebooks.py  # regenerates the notebooks deterministically
 ```
+
+---
+
+## 🧭 MLOps stages (implemented)
+
+Building the model is ~10% of the job; the rest is operating it. Every MLOps stage
+is implemented as a small, **runnable** module — each with a beginner explanation and
+a one-line command in **[`docs/MLOPS_GUIDE.md`](docs/MLOPS_GUIDE.md)**.
+
+| Stage | Module / file | Run it |
+| :---- | :------------ | :----- |
+| Data validation | `car_pricing.validation` | `python -m car_pricing.validation` |
+| Hyperparameter tuning | `car_pricing.tuning` | `python -m car_pricing.tuning` |
+| Experiment tracking (MLflow) | `car_pricing.tracking` | `python -m car_pricing.tracking` → `mlflow ui` |
+| Explainability | `car_pricing.explain` | `python -m car_pricing.explain` |
+| Model versioning / registry | `car_pricing.registry` | `python -m car_pricing.registry` |
+| CI / CD / CT | `.github/workflows/{ci,cd,ct}.yml` | on push / tag / schedule |
+| Deployment / serving | `car_pricing.serve` + `Dockerfile` | `python -m car_pricing.serve` |
+| Monitoring | `car_pricing.monitoring` | `python -m car_pricing.monitoring` |
+| Drift detection | `car_pricing.drift` | `python -m car_pricing.drift` |
+| Governance | [`docs/GOVERNANCE.md`](docs/GOVERNANCE.md) | KPI gate + registry + model card |
+
+See it all run in **[notebook 09](notebooks/09_mlops_toolkit.ipynb)**.
 
 ---
 
@@ -215,6 +245,8 @@ The siblings answer *"how do users interact with the model?"*; this repo answers
 
 ## 📚 Documentation index
 
+- 🧭 [`docs/MLOPS_GUIDE.md`](docs/MLOPS_GUIDE.md) — **all 11 MLOps stages, explained for a beginner**
+- 🏛️ [`docs/GOVERNANCE.md`](docs/GOVERNANCE.md) — approval (KPI gate), registry, lineage, rollback
 - 💼 [`docs/BUSINESS_CASE.md`](docs/BUSINESS_CASE.md) — problem, value, KPIs, scope
 - 📖 [`docs/DATA_DICTIONARY.md`](docs/DATA_DICTIONARY.md) — every column, the baselines, cleaning
 - 🃏 [`docs/MODEL_CARD.md`](docs/MODEL_CARD.md) — the bake-off, selection, performance, limits

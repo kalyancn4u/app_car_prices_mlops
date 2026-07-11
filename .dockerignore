@@ -1,0 +1,16 @@
+# Keep the serving image small: only src/ + models/ + requirements are needed.
+.git
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+notebooks/
+docs/
+tests/
+tools/
+data/
+mlruns/
+experiments/
+monitoring/
+models/registry/
+.github/

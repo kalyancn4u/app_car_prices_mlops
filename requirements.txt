@@ -5,11 +5,18 @@ scikit-learn==1.6.1
 joblib==1.4.2
 
 # Gradient-boosting candidates for the model bake-off
-xgboost==2.1.1
+# (xgboost >= 2.1.2 fixes a Pipeline incompatibility with scikit-learn 1.6)
+xgboost==2.1.4
 lightgbm==4.5.0
 
 # Columnar data formats (Parquet / Feather) + compression benchmark
 pyarrow==17.0.0
+
+# MLOps toolkit
+mlflow==2.18.0        # experiment tracking + model registry
+evidently==0.4.30     # drift reports/dashboards
+flask==2.2.5          # serving API (car_pricing.serve)
+gunicorn==22.0.0      # production WSGI server (used in the Dockerfile)
 
 # Notebooks & plotting (analysis phases)
 jupyter==1.1.1
@@ -18,3 +25,9 @@ seaborn==0.13.2
 
 # Tests
 pytest==8.3.2
+
+# Optional upgrades (documented in docs/MLOPS_GUIDE.md; not required to run):
+#   optuna     — smarter hyper-parameter search (vs RandomizedSearchCV)
+#   shap       — per-prediction explanations (vs feature importances)
+#   pandera    — declarative data validation (vs the built-in checks)
+#   dvc        — data/model version control (vs the built-in registry)

@@ -1,0 +1,35 @@
+# CD — Continuous Deployment.
+# When you tag a release (e.g. v1.0), build the serving Docker image and publish it
+# to GitHub's container registry (ghcr.io). Deploy targets (AWS ECS, Fly.io, etc.)
+# then pull that image. See the sibling app_car_prices_flask repo for a full
+# ECS/Fargate walkthrough.
+name: CD (build & publish image)
+
+on:
+  push:
+    tags: [ "v*" ]           # e.g. v1.0.0
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}:latest

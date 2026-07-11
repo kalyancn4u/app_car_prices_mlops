@@ -1,0 +1,44 @@
+# CI — Continuous Integration.
+# Runs on every push / PR: install, validate the data, run the tests, and confirm
+# the shipped model still clears the business KPI gate. A red X here blocks bad
+# code (or a regressed model) from merging.
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Validate the dataset
+        run: python -m car_pricing.validation
+
+      - name: Run tests
+        run: pytest -q
+
+      - name: KPI gate (shipped model must still pass)
+        run: |
+          python - <<'PY'
+          import json, sys
+          m = json.load(open("models/metrics.json"))
+          gate = m["kpi_gate"]
+          print("KPI gate:", gate)
+          sys.exit(0 if gate["all_pass"] else 1)
+          PY
