@@ -26,6 +26,7 @@ app = Flask(__name__)
 
 @app.get("/")
 def index():
+    """GET / -- service info and a usage example."""
     return jsonify({
         "service": "car-pricing",
         "usage": {"method": "POST", "endpoint": "/predict",
@@ -36,11 +37,13 @@ def index():
 
 @app.get("/health")
 def health():
+    """GET /health -- liveness check."""
     return jsonify({"status": "healthy"})
 
 
 @app.post("/predict")
 def do_predict():
+    """POST /predict -- predict a price for the posted car and log it for monitoring."""
     payload = request.get_json(silent=True)
     if not isinstance(payload, dict):
         return jsonify({"error": "Send a JSON body, e.g. "
@@ -55,6 +58,7 @@ def do_predict():
 
 @app.errorhandler(405)
 def method_not_allowed(_exc):
+    """405 handler -- /predict requires POST."""
     return jsonify({"error": "Method not allowed. /predict expects POST."}), 405
 
 

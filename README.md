@@ -247,6 +247,7 @@ The siblings answer *"how do users interact with the model?"*; this repo answers
 
 - 🧭 [`docs/MLOPS_GUIDE.md`](docs/MLOPS_GUIDE.md) — **all 11 MLOps stages, explained for a beginner**
 - 🏛️ [`docs/GOVERNANCE.md`](docs/GOVERNANCE.md) — approval (KPI gate), registry, lineage, rollback
+- 📗 [`docs/API_EXAMPLES.md`](docs/API_EXAMPLES.md) — copy-paste usage recipes for every module (runnable: [`notebooks/api_examples.ipynb`](notebooks/api_examples.ipynb))
 - 🧪 [`docs/TESTING_GUIDE.md`](docs/TESTING_GUIDE.md) — learn testing & debugging by completing the graded stubs in [`tests/test_stubs.py`](tests/test_stubs.py)
 - 💼 [`docs/BUSINESS_CASE.md`](docs/BUSINESS_CASE.md) — problem, value, KPIs, scope
 - 📖 [`docs/DATA_DICTIONARY.md`](docs/DATA_DICTIONARY.md) — every column, the baselines, cleaning

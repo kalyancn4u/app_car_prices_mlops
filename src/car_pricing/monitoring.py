@@ -37,6 +37,7 @@ def log_prediction(inputs: Dict[str, Any], predicted_lakhs: float,
 
 
 def load_predictions():
+    """Load the logged predictions as a DataFrame (empty if none yet)."""
     import pandas as pd
     if not PRED_LOG.exists():
         return pd.DataFrame()

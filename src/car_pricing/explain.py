@@ -23,6 +23,7 @@ from . import config, data, features
 
 
 def _load_pipeline(pipeline=None):
+    """Return the given pipeline, or load the shipped one from disk."""
     return pipeline if pipeline is not None else joblib.load(config.PIPELINE_PATH)
 
 

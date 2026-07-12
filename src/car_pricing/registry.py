@@ -25,14 +25,17 @@ INDEX = REGISTRY / "index.json"
 
 
 def _hash(path: Path) -> str:
+    """Return a short SHA-256 fingerprint of a file's bytes."""
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()[:12]
 
 
 def load_index() -> List[Dict]:
+    """Return the registry index (list of version entries), or [] if empty."""
     return json.loads(INDEX.read_text(encoding="utf-8")) if INDEX.exists() else []
 
 
 def _save_index(entries: List[Dict]) -> None:
+    """Write the registry index to disk."""
     REGISTRY.mkdir(parents=True, exist_ok=True)
     INDEX.write_text(json.dumps(entries, indent=2), encoding="utf-8")
 
@@ -82,6 +85,7 @@ def promote(version: str, stage: str = "production") -> Dict:
 
 
 def latest(stage: Optional[str] = None) -> Optional[Dict]:
+    """Return the most recent registry entry (optionally filtered by stage), or None."""
     entries = [e for e in load_index() if stage is None or e["stage"] == stage]
     return entries[-1] if entries else None
 

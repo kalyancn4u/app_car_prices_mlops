@@ -37,12 +37,14 @@ RANGES = {
 
 @dataclass
 class ValidationReport:
+    """Result of validating a DataFrame: ok flag, row count, errors and warnings."""
     ok: bool
     n_rows: int = 0
     errors: List[str] = field(default_factory=list)      # hard failures
     warnings: List[str] = field(default_factory=list)    # soft issues
 
     def summary(self) -> str:
+        """Return a human-readable multi-line summary of the report."""
         head = f"Data validation on {self.n_rows:,} rows: {'PASS' if self.ok else 'FAIL'}"
         lines = [head]
         for e in self.errors:
