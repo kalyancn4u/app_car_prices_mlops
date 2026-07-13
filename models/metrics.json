@@ -1,12 +1,12 @@
 {
-  "winner": "LightGBM",
+  "winner": "XGBoost",
   "cv_best_model": "XGBoost",
-  "cv_best_mae_lakhs": 0.708,
-  "price_r2": 0.9568,
-  "price_mae_lakhs": 0.664,
-  "price_rmse_lakhs": 1.022,
-  "band_accuracy": 0.8582,
-  "fit_seconds": 0.97,
+  "cv_best_mae_lakhs": 0.706,
+  "price_r2": 0.957,
+  "price_mae_lakhs": 0.666,
+  "price_rmse_lakhs": 1.02,
+  "band_accuracy": 0.8645,
+  "fit_seconds": 0.53,
   "n_train": 15856,
   "n_test": 3964,
   "n_features": 16,
@@ -16,5 +16,5 @@
     "band_ok": true,
     "all_pass": true
   },
-  "artifact_mb": 0.92
+  "artifact_mb": 0.53
 }
