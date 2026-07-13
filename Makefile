@@ -3,7 +3,26 @@
 
 PY ?= python
 
-.PHONY: setup train test notebooks predict clean
+# --- Clean-rebuild pipeline (fresh conda env -> train -> verify -> pin) --------
+# Mirrors the Streamlit app's discipline: the env that trains models/*.pkl also
+# writes requirements.txt + .python-version, so the serving image installs the
+# exact versions the pickle was saved with (no version-mismatch crash on load).
+#
+# Python version policy (why 3.11): the pins numpy 1.26.x / scikit-learn 1.6.x
+# only have wheels for Python 3.9-3.12, and 3.11 also matches the Dockerfile base
+# image (python:3.11-slim). Do NOT pair these pins with Python 3.13/3.14 - no
+# numpy 1.26 wheel exists there and the install fails. To move to 3.13+ you must
+# upgrade the whole stack AND retrain (also check xgboost/lightgbm/mlflow/
+# evidently ship 3.13 wheels): unpin the core libs, `make rebuild PYVER=3.13`,
+# then `make freeze`. See README -> "Reproducible rebuilds & the Python-version
+# policy".
+ENV   ?= car-mlops
+PYVER ?= 3.11
+CONDA ?= conda
+IMAGE ?= car-pricing-api
+RUN   := $(CONDA) run -n $(ENV) --no-capture-output
+
+.PHONY: setup train test notebooks predict clean env verify freeze rebuild docker-build docker-run push
 
 setup:            ## Install the package + dependencies (editable)
 	$(PY) -m pip install -r requirements.txt
@@ -23,3 +42,34 @@ predict:          ## Example prediction (edit the payload in this target)
 
 clean:            ## Remove caches and generated processed data
 	rm -rf **/__pycache__ .pytest_cache data/processed/_bench
+
+env:              ## Create conda env (Python $(PYVER)) + install deps (editable)
+	$(CONDA) create -y -n $(ENV) python=$(PYVER)
+	$(RUN) python -m pip install --upgrade pip
+	$(RUN) python -m pip install -r requirements.txt
+	$(RUN) python -m pip install -e .
+
+verify:           ## Confirm the saved pipeline unpickles AND predicts
+	$(RUN) python -c "from car_pricing.predict import predict; print('OK:', predict({'make':'MARUTI','model':'SWIFT VXI','age':5,'km_driven':40000}))"
+
+freeze:           ## Pin requirements.txt + .python-version to this env
+	$(RUN) python tools/pin_env.py requirements.txt
+
+rebuild: env      ## Full clean run: env -> train -> verify -> pin
+	$(RUN) python -m car_pricing.train
+	$(RUN) python -c "from car_pricing.predict import predict; print('OK:', predict({'make':'MARUTI','model':'SWIFT VXI','age':5,'km_driven':40000}))"
+	$(RUN) python tools/pin_env.py requirements.txt
+	@echo ""
+	@echo "Rebuild complete. Review 'git diff', then 'make push'."
+	@echo "Keep the Dockerfile base image (python:$(PYVER)-slim) == .python-version."
+
+docker-build:     ## Build the serving Docker image
+	docker build -t $(IMAGE) .
+
+docker-run:       ## Run the serving image locally (http://localhost:8000)
+	docker run --rm -p 8000:8000 $(IMAGE)
+
+push:             ## Commit retrained model + pins and push
+	git add models/ requirements.txt .python-version
+	git commit -m "Rebuild pipeline and re-pin environment (Python $(PYVER))"
+	git push origin HEAD
