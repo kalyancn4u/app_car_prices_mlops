@@ -27,6 +27,7 @@ _NAME = re.compile(r"^([A-Za-z0-9][A-Za-z0-9._-]*)(\[[^\]]*\])?")
 
 
 def repin(path: str) -> None:
+    """Rewrite each dependency line in `path` to name==<installed version>, keeping comments and pip directives."""
     with open(path, encoding="utf-8") as f:
         lines = f.readlines()
 
@@ -57,6 +58,7 @@ def repin(path: str) -> None:
 
 
 def main() -> None:
+    """Repin the given requirements files (default requirements.txt) and refresh .python-version."""
     files = sys.argv[1:] or ["requirements.txt"]
     print("Refreshing pins to the current environment:")
     for path in files:
