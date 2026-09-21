@@ -6,7 +6,7 @@
   "price_mae_lakhs": 0.666,
   "price_rmse_lakhs": 1.02,
   "band_accuracy": 0.8645,
-  "fit_seconds": 0.5,
+  "fit_seconds": 0.53,
   "n_train": 15856,
   "n_test": 3964,
   "n_features": 16,
